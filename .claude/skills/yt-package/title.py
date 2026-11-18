@@ -13,14 +13,22 @@ feed. Both limits are reported because they are different failures - a desktop t
 tail, a mobile one can lose the subject.
 """
 import json, re, sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "yt-script"))
+from lang import fold, words as lang_words, strip_named_numbers, STOP as LANG_STOP  # noqa: E402
 
 DESKTOP, MOBILE, HARD = 60, 40, 100
 VAGUE = {"amazing","incredible","insane","crazy","huge","massive","ultimate","best","powerful",
-         "secret","revolutionary","mindblowing","epic","perfect","complete","everything"}
+         "secret","revolutionary","mindblowing","epic","perfect","complete","everything",
+         # Spanish, accent-folded (titles mix both: "GTA 6: el leak MAS loco")
+         "increible","brutal","loco","locura","epico","enorme","impresionante","bestial","impactante",
+         "espectacular","perfecto","completo","todo","secreto","mejor","genial"}
 STOP = {"the","a","an","of","for","to","in","on","and","or","is","are","with","your","you","my","i",
         "this","that","it","how","what","why"}
 
-def words(t): return re.findall(r"[a-z0-9']+", t.lower())
+STOP = STOP | LANG_STOP
+ACRONYMS = {"GTA","PS5","PS4","NPC","DLC","RDR","RDR2","FPS","PC","USA","FBI","DEA","IGN","XBOX","VI","IV"}
+# Accent-folded tokens: "TRÁILER" on the thumbnail and "trailer" in the title are the same word.
+def words(t): return [fold(w) for w in lang_words(t)]
 
 def check(title, thumb=None):
     t = title.strip()
@@ -32,12 +40,15 @@ def check(title, thumb=None):
     if n > MOBILE:
         head = t[:MOBILE].rsplit(" ", 1)[0]
         issues.append(("mobile", f'a mobile feed shows about "{head}..." - check the subject survives'))
-    caps = [w for w in t.split() if len(w) > 2 and w.isupper()]
+    # acronyms are names, not shouting
+    caps = [w for w in t.split() if len(w) > 2 and w.isupper()
+            and w.strip(".,:;!?¿¡()") not in ACRONYMS]
     if len(caps) > 2: issues.append(("shouting", f"{len(caps)} all-caps words - two is the ceiling before it reads as spam"))
     elif caps: good.append(f"{len(caps)} all-caps word for emphasis")
     v = [w for w in words(t) if w in VAGUE]
     if v: issues.append(("vague", f"{', '.join(sorted(set(v)))} - swap for a number, a name or a date"))
-    nums = re.findall(r"\d[\d,.]*%?", t)
+    # "GTA 6" is the subject, not a figure - every title in the niche has it
+    nums = re.findall(r"\d[\d,.]*%?", strip_named_numbers(t))
     if nums: good.append(f"carries a concrete figure ({', '.join(nums[:3])})")
     else: issues.append(("no-number", "no number, date or name - the most reliable single fix"))
     if t.endswith("?"): good.append("open question in the title")
@@ -69,11 +80,11 @@ def main():
     if "--title" in a:
         rows = [check(a[a.index("--title") + 1], thumb)]
     elif a and os.path.exists(a[0]):
-        rows = [check(l, thumb) for l in open(a[0]).read().splitlines() if l.strip()]
+        rows = [check(l, thumb) for l in open(a[0], encoding="utf-8").read().splitlines() if l.strip()]
     else:
         print(__doc__); sys.exit(1)
     rows.sort(key=lambda r: -r["score"])
-    if as_json: print(json.dumps(rows, indent=1)); return
+    if as_json: print(json.dumps(rows, indent=1, ensure_ascii=False)); return
     for r in rows: show(r)
     print()
 

@@ -1,6 +1,6 @@
 {
  "version": "1.0",
- "note": "21 hook formulas for YouTube. A YouTube hook is the first 15 seconds and it does three jobs: confirm the click the title promised, raise a question the viewer cannot close, and prove the payoff exists. A hook that only does the third is a summary and it leaks. Every formula here carries the shape, a worked example, the failure mode, and the patterns hookscore.py classifies transcribed speech against.",
+ "note": "21 hook formulas for YouTube. A YouTube hook is the first 15 seconds and it does three jobs: confirm the click the title promised, raise a question the viewer cannot close, and prove the payoff exists. A hook that only does the third is a summary and it leaks. Every formula here carries the shape, a worked example, the failure mode, and the patterns hookscore.py classifies transcribed speech against. Patterns are bilingual (English and Spanish) and run against accent-folded lowercase text, so Spanish patterns are written without accents.",
  "rules": [
   "Confirm the title in the first sentence. A hook that ignores its own title is why people leave at 0:08.",
   "One idea. A hook carrying two promises keeps neither.",
@@ -18,7 +18,9 @@
    "match": [
     "\\b\\d+(\\.\\d+)?\\s?%",
     "\\b\\d+ (out of|in) \\d+\\b",
-    "\\b\\d{2,}(,\\d{3})+\\b"
+    "\\b\\d{2,}(,\\d{3})+\\b",
+    "\\b\\d+ de cada \\d+\\b",
+    "\\b\\d+ (mil|millones)\\b"
    ]
   },
   {
@@ -30,7 +32,10 @@
    "match": [
     "\\bthis (channel|guy|creator|account)\\b",
     "\\bwent from .* to\\b",
-    "\\bin (a|one|two|three|\\d+) (week|month|year)s?\\b"
+    "\\bin (a|one|two|three|\\d+) (week|month|year)s?\\b",
+    "\\beste (canal|tipo|creador|youtuber|jugador|streamer)\\b",
+    "\\bpaso de .* a\\b",
+    "\\ben (una|un|dos|tres|\\d+) (semana|mes|ano|dia)s?\\b"
    ]
   },
   {
@@ -42,7 +47,10 @@
    "match": [
     "\\byou('re| are) (probably |still )?(doing|making)\\b",
     "\\bthe (mistake|reason) (everyone|most people|nobody)\\b",
-    "\\bstop (doing )?\\b"
+    "\\bstop (doing )?\\b",
+    "\\b(estas|sigues|seguro estas) (haciendo|cometiendo|jugando)\\b",
+    "\\bel (error|motivo) (que )?(todos|la mayoria|nadie)\\b",
+    "\\bel error\\b"
    ]
   },
   {
@@ -54,7 +62,11 @@
    "match": [
     "\\beveryone (says|thinks|tells you)\\b",
     "\\bis (actually )?wrong\\b",
-    "\\bnobody (tells|talks about)\\b"
+    "\\bnobody (tells|talks about)\\b",
+    "\\btodos (dicen|creen|piensan)\\b",
+    "\\b(estan|esta) (equivocad[oa]s?|mal)\\b",
+    "\\bnadie (te )?(dice|habla|cuenta)\\b",
+    "\\bes (falso|mentira)\\b"
    ]
   },
   {
@@ -66,7 +78,11 @@
    "match": [
     "\\bI('m| am) going to show you\\b",
     "\\bhere('s| is) (the|exactly)\\b",
-    "\\bon screen\\b"
+    "\\bon screen\\b",
+    "\\bte (voy|vamos) a (ensenar|mostrar)\\b",
+    "\\baqui (esta|estan)\\b",
+    "\\ben pantalla\\b",
+    "\\bte lo (muestro|enseno)\\b"
    ]
   },
   {
@@ -77,7 +93,10 @@
    "fails_when": "Superlatives are cheap. Earn it by naming what it beat.",
    "match": [
     "\\bthe (best|worst|fastest|easiest|only)\\b",
-    "\\bnumber one\\b"
+    "\\bnumber one\\b",
+    "\\b(el|la|lo) (mejor|peor|unic[oa])\\b",
+    "\\b(el|la|los|las) mas (grande|rapid|facil|car|loc|rar|dificil)\\w*\\b",
+    "\\bnumero uno\\b"
    ]
   },
   {
@@ -89,7 +108,10 @@
    "match": [
     "\\bin (the next )?\\d+ (seconds|minutes|hours)\\b",
     "\\bby the end of this video\\b",
-    "\\bunder \\d+\\b"
+    "\\bunder \\d+\\b",
+    "\\ben (los proximos )?\\d+ (segundos|minutos|horas)\\b",
+    "\\bal final (de este|del) video\\b",
+    "\\ben menos de \\d+\\b"
    ]
   },
   {
@@ -101,7 +123,10 @@
    "match": [
     "\\bI (tried|spent|tested|let|gave)\\b",
     "\\bfor \\d+ (days|weeks|months)\\b",
-    "\\bso you don'?t have to\\b"
+    "\\bso you don'?t have to\\b",
+    "\\b(probe|jugue|intente|gaste|me pase|le di|termine)\\b",
+    "\\bdurante \\d+ (dias|semanas|meses|horas)\\b",
+    "\\bpara que (tu )?no tengas\\b"
    ]
   },
   {
@@ -112,7 +137,9 @@
    "fails_when": "Must be the viewer's question, not yours. Pull it from your own comments.",
    "match": [
     "^(why|how|what|when|should|can|do|does|is)\\b",
-    "\\?\\s*$"
+    "\\?\\s*$",
+    "^¿",
+    "^(por que|como|cuando|cual|deberias|vale la pena|se puede)\\b"
    ]
   },
   {
@@ -124,7 +151,10 @@
    "match": [
     "\\bbefore\\b.*\\bafter\\b",
     "\\bthis was\\b.*\\bthis is\\b",
-    "\\bused to\\b"
+    "\\bused to\\b",
+    "\\bantes\\b.*\\b(despues|ahora)\\b",
+    "\\besto era\\b.*\\besto es\\b",
+    "\\bantes era\\b"
    ]
   },
   {
@@ -137,7 +167,9 @@
     "\\b(broke|break|breaking) (it )?down\\b",
     "\\bteardown\\b",
     "\\banalys(ed|ed|is|e)\\b",
-    "\\bI pulled\\b"
+    "\\bI pulled\\b",
+    "\\b(analice|analizamos|analisis|desglose|revise)\\b",
+    "\\b(cuadro|frame) por (cuadro|frame)\\b"
    ]
   },
   {
@@ -149,7 +181,9 @@
    "match": [
     "\\b\\w+ (plus|\\+) \\w+\\b",
     "\\bcombine\\b",
-    "\\btogether\\b"
+    "\\btogether\\b",
+    "\\bcombin(ar|ando|e|amos)\\b",
+    "\\bjunt(o|os|ando)\\b"
    ]
   },
   {
@@ -162,7 +196,12 @@
     "\\bdo not\\b",
     "\\bdon'?t (upload|post|publish|start)\\b",
     "\\bbefore you\\b",
-    "\\bstop\\b"
+    "\\bstop\\b",
+    "\\bno (lo |la )?(compres|descargues|juegues|hagas|subas|instales|reserves|gastes)\\b",
+    "\\bantes de (comprar|jugar|reservar|descargar)\\b",
+    "\\bcuidado\\b",
+    "\\bdeja de\\b",
+    "\\bno cometas\\b"
    ]
   },
   {
@@ -173,7 +212,9 @@
    "fails_when": "The count must be exact and every item must be different in kind.",
    "match": [
     "^\\d+ \\w+",
-    "\\b(here are|these are) \\d+\\b"
+    "\\b(here are|these are) \\d+\\b",
+    "\\b(aqui (estan|tienes)|estos son|estas son) (los |las )?\\d+\\b",
+    "\\b\\d+ (cosas|detalles|secretos|errores|razones|trucos|misiones|lugares|easter eggs)\\b"
    ]
   },
   {
@@ -186,7 +227,11 @@
     "\\bthis is (the|my)\\b",
     "\\bscreenshot\\b",
     "\\bproof\\b",
-    "\\breceipts?\\b"
+    "\\breceipts?\\b",
+    "\\besto es (el|la|mi)\\b",
+    "\\bcaptura\\b",
+    "\\bpruebas?\\b",
+    "\\bevidencia\\b"
    ]
   },
   {
@@ -198,7 +243,10 @@
    "match": [
     "\\b(nobody|almost nobody|most people) (knows?|opens?|uses?)\\b",
     "\\bhidden\\b",
-    "\\bburied\\b"
+    "\\bburied\\b",
+    "\\b(nadie|casi nadie|la mayoria) (sabe|vio|noto|conoce|usa)\\b",
+    "\\bocult[oa]s?\\b",
+    "\\bescondid[oa]s?\\b"
    ]
   },
   {
@@ -211,7 +259,11 @@
     "\\bwithout\\b",
     "\\bnever\\b",
     "\\bin one\\b",
-    "\\bzero\\b"
+    "\\bzero\\b",
+    "\\bsin\\b",
+    "\\bjamas\\b",
+    "\\ben un(a)? sol[oa]\\b",
+    "\\bcero\\b"
    ]
   },
   {
@@ -224,7 +276,10 @@
     "\\bvs\\.?\\b",
     "\\bversus\\b",
     "\\bwhich (one )?(is|wins)\\b",
-    "\\bsame .* (three|two) ways\\b"
+    "\\bsame .* (three|two) ways\\b",
+    "\\bcontra\\b",
+    "\\bcual (es mejor|gana)\\b",
+    "\\bcompar(ado|ada|acion|amos)\\b"
    ]
   },
   {
@@ -236,7 +291,10 @@
    "match": [
     "\\bevery (video|post) .* starts\\b",
     "\\bit all (starts|started)\\b",
-    "\\bthe (real )?reason\\b"
+    "\\bthe (real )?reason\\b",
+    "\\btodo (empezo|comenzo|empieza)\\b",
+    "\\bla (verdadera )?razon\\b",
+    "\\bel origen\\b"
    ]
   },
   {
@@ -249,7 +307,13 @@
     "\\b(this|next) (week|month|year)\\b",
     "\\bis changing\\b",
     "\\bno longer\\b",
-    "\\bas of\\b"
+    "\\bas of\\b",
+    "\\b(esta|la proxima) semana\\b",
+    "\\b(este|el proximo) (mes|ano)\\b",
+    "\\bya no\\b",
+    "\\b(faltan?|quedan?) \\d+\\b",
+    "\\bsale (el|en|manana)\\b",
+    "\\bfecha\\b"
    ]
   },
   {
@@ -261,7 +325,10 @@
    "match": [
     "^if you\\b",
     "\\bfor (anyone|everyone|people) who\\b",
-    "\\byou specifically\\b"
+    "\\byou specifically\\b",
+    "^si (tu |tienes|juegas|vas|eres|estas|quieres)",
+    "\\bpara (quienes|los que|las que|todos los que)\\b",
+    "\\bsi eres de los que\\b"
    ]
   }
  ]

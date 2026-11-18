@@ -19,17 +19,32 @@ report you can act on without scrubbing the video yourself.
 """
 import csv, json, os, re, sys
 
+def num(c):
+    """A cell as a number. Handles a Spanish-locale Studio export: '45,3 %' (decimal comma) and
+    '1:30' (m:ss) as well as '45.3%' and '1,234.5'."""
+    c = c.strip().replace("%", "").replace("\u00a0", "").replace(" ", "")
+    if not c: return None
+    if re.fullmatch(r"\d+(:\d{1,2}){1,2}(\.\d+)?", c):
+        p = [float(x) for x in c.split(":")]
+        return p[0] * 60 + p[1] if len(p) == 2 else p[0] * 3600 + p[1] * 60 + p[2]
+    if re.fullmatch(r"-?\d+,\d{1,3}", c) and not re.fullmatch(r"-?\d{1,3},\d{3}", c):
+        c = c.replace(",", ".")            # 45,3 -> 45.3 (but 1,234 stays a thousands separator)
+    elif "," in c and "." in c and c.rfind(",") > c.rfind("."):
+        c = c.replace(".", "").replace(",", ".")   # 1.234,5 -> 1234.5
+    else:
+        c = c.replace(",", "")
+    try: return float(c)
+    except ValueError: return None
+
 def load_csv(path):
     rows = []
     with open(path, newline="", encoding="utf-8-sig", errors="replace") as fh:
-        for r in csv.reader(fh):
-            nums = []
-            for c in r:
-                c = c.strip().replace("%", "").replace(",", "")
-                try: nums.append(float(c))
-                except ValueError: nums.append(None)
-            vals = [n for n in nums if n is not None]
-            if len(vals) >= 2: rows.append((vals[0], vals[1]))
+        raw = fh.read()
+    try: dialect = csv.Sniffer().sniff(raw[:4096], delimiters=",;\t")
+    except csv.Error: dialect = csv.excel
+    for r in csv.reader(raw.splitlines(), dialect):
+        vals = [n for n in (num(c) for c in r) if n is not None]
+        if len(vals) >= 2: rows.append((vals[0], vals[1]))
     return rows
 
 def main():

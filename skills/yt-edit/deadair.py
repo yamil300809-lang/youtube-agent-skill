@@ -15,7 +15,10 @@ runtime you would land on, and you apply it in whatever editor you use. Nothing 
 import json, os, re, sys
 
 FILLER_ONLY = re.compile(r"^[\s,.-]*((um+|uh+|er+|ah+|so|okay|ok|right|yeah|like|anyway|basically|"
-                         r"actually|you know|i mean|let me see|hold on)[\s,.-]*)+$", re.I)
+                         r"actually|you know|i mean|let me see|hold on|"
+                         # Spanish filler-only cues
+                         r"eh+|em+|mm+|este|o sea|bueno|pues|entonces|vale|a ver|digamos|tipo|"
+                         r"como que|sabes|ya|ajá|aja|okey|no\?|¿no\?|osea)[\s,.¿?¡!-]*)+$", re.I)
 
 def parse_ts(s):
     s = s.strip().replace(",", ".")
@@ -38,7 +41,9 @@ def load(path):
             cur[2].append(line.strip())
     return [(a, b, " ".join(t)) for a, b, t in cues if t]
 
-def norm(t): return re.sub(r"[^a-z ]", "", t.lower()).split()
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "yt-script"))
+from lang import fold, words as _words  # noqa: E402
+def norm(t): return [fold(w) for w in _words(t)]
 
 def main():
     a = sys.argv[1:]

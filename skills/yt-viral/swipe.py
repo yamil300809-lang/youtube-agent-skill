@@ -19,15 +19,11 @@ about the words on screen, not a claim about why the video worked.
 import json, os, re, statistics, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FORMULAS = json.load(open(os.path.join(HERE, "..", "yt-script", "hooks.json")))["hooks"]
+sys.path.insert(0, os.path.join(HERE, "..", "yt-script"))
+from hookscore import classify as _classify  # noqa: E402  (one bilingual classifier, not two)
 
 def classify(title):
-    scored = []
-    for f in FORMULAS:
-        n = sum(1 for p in f["match"] if re.search(p, title, re.I))
-        if n: scored.append((n, f["name"]))
-    scored.sort(reverse=True)
-    return scored[0][1] if scored else "Unclassified"
+    return _classify(title)[0]
 
 def main():
     a = sys.argv[1:]
@@ -35,7 +31,7 @@ def main():
     lo = float(a[a.index("--min") + 1]) if "--min" in a else 1.5
     files = [x for x in a if not x.startswith("--") and not re.match(r"^[\d.]+$", x)]
     if not files or not os.path.exists(files[0]): print(__doc__); sys.exit(1)
-    rows = json.load(open(files[0]))
+    rows = json.load(open(files[0], encoding="utf-8"))
     if isinstance(rows, dict): rows = rows.get("videos", [])
     by = {}
     for r in rows: by.setdefault(r.get("channel", "?"), []).append(r)
@@ -53,7 +49,7 @@ def main():
                         "formula": classify(v.get("title", "")), "url": v.get("url", "")})
     out = [r for r in out if r["multiple"] >= lo]
     out.sort(key=lambda r: -r["multiple"])
-    if as_json: print(json.dumps({"outliers": out, "skipped_thin_channels": thin}, indent=1)); return
+    if as_json: print(json.dumps({"outliers": out, "skipped_thin_channels": thin}, indent=1, ensure_ascii=False)); return
     print(f"\n  {len(rows)} videos across {len(by)} channels, outliers at {lo}x or better\n")
     for r in out[:25]:
         print(f"    {r['multiple']:5.2f}x  {r['views']:>9,}  vs {r['median']:>9,} median   {r['channel'][:22]:<22} {r['title'][:52]}")
