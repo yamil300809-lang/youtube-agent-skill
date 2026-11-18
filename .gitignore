@@ -1,3 +1,11 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# credenciales y videos: NUNCA al repo
+client_secret*.json
+credentials*.json
+token*.json
+.env
+*.mp4
+*.mov

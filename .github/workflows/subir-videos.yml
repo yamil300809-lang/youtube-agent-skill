@@ -1,0 +1,51 @@
+name: Subir videos a YouTube
+
+on:
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: "validar = solo revisar (no sube) | prueba = 1 video privado sin programar | subir = todo videos.csv"
+        type: choice
+        options: [validar, prueba, subir]
+        default: validar
+      archivo_prueba:
+        description: "Solo para 'prueba': enlace de Drive del video"
+        required: false
+        default: ""
+      confirmacion:
+        description: "Para prueba o subir escribe: súbelo"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: subir-videos
+  cancel-in-progress: false
+
+jobs:
+  subir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -q -r youtube_uploader/requirements.txt
+      - name: Ejecutar
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_DRIVE_FOLDER_ID: ${{ secrets.YT_DRIVE_FOLDER_ID }}
+          MODO: ${{ inputs.modo }}
+          ARCHIVO: ${{ inputs.archivo_prueba }}
+          CONFIRMACION: ${{ inputs.confirmacion }}
+        run: |
+          if [ "$MODO" = "prueba" ]; then
+            python3 youtube_uploader/subir.py --modo prueba --archivo "$ARCHIVO" --confirmacion "$CONFIRMACION"
+          else
+            python3 youtube_uploader/subir.py --modo "$MODO" --confirmacion "$CONFIRMACION"
+          fi
